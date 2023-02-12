@@ -1,17 +1,9 @@
 #!/bin/bash
 
-# Sprawdzanie uprawnień administratora
-if [ "$(id -u)" != "0" ]; then
-   echo "Ten skrypt musi być uruchamiany jako administrator." 1>&2
-   exit 1
-fi
+if [ "$(id -u)" != "0" ]; then echo "Ten skrypt musi być uruchamiany jako administrator." 1>&2 exit 1 fi
 
 # Aktualizacja oprogramowania na serwerze Ubuntu
-sudo apt-get update
-sudo apt-get upgrade -y
-
-# Instalacja pakietu unattended-upgrades
-sudo apt-get install unattended-upgrades -y
+sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install unattended-upgrades -y
 
 # Konfiguracja unattended-upgrades
 sudo cat > /etc/apt/apt.conf.d/50unattended-upgrades <<EOF
@@ -25,59 +17,11 @@ EOF
 sudo dpkg-reconfigure --priority=low unattended-upgrades
 
 # Usunięcie niepotrzebnych pakietów
-sudo apt-get autoremove -y
-
-echo "Aktualizacja zakończona pomyślnie."
-
-# Tworzenie pliku swap o wielkości 1GB
-sudo fallocate -l 2G /swapfile
-
-# Zabezpieczenie pliku przed odczytem i zapisem przez osoby trzecie
-sudo chmod 600 /swapfile
-
-# Tworzenie partycji swap
-sudo mkswap /swapfile
-
-# Włączanie partycji swap
-sudo swapon /swapfile
-
-# Dodawanie partycji swap do automatycznego wczytywania przy każdym uruchomieniu serwera
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-
-# Instalacja i konfiguracja narzędzia dla zarządzania pamięcią
-sudo apt-get install -y sysfsutils
-echo 'vm.swappiness = 10' | sudo tee -a /etc/sysfs.conf
-
-# Zmiana wielkości bufora dla dysku twardego
-echo 'vm.dirty_background_ratio = 5' | sudo tee -a /etc/sysfs.conf
-echo 'vm.dirty_ratio = 10' | sudo tee -a /etc/sysfs.conf
-
-# Włączanie funkcji TCP timestamps
-echo 'net.ipv4.tcp_timestamps = 1' | sudo tee -a /etc/sysctl.conf
-
-# Włączanie funkcji TCP window scaling
-echo 'net.ipv4.tcp_window_scaling = 1' | sudo tee -a /etc/sysctl.conf
-
-# Zwiększenie wielkości pamięci podręcznej dla DNS
-echo 'options single-request-reopen' | sudo tee -a /etc/resolvconf/resolv.conf.d/head
-
-# Zmiana wartości opcji noatime dla systemu plików
-sudo sed -i 's/errors=remount-ro 0/errors=remount-ro,noatime 0/g' /etc/fstab
-
-# Zaktualizowanie konfiguracji systemu
-sudo sysctl -p
+sudo apt-get autoremove -y && echo "Aktualizacja zakończona pomyślnie." && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab && sudo apt-get install -y sysfsutils && echo 'vm.swappiness = 10' | sudo tee -a /etc/sysfs.conf && echo 'vm.dirty_background_ratio = 5' | sudo tee -a /etc/sysfs.conf && echo 'vm.dirty_ratio = 10' | sudo tee -a /etc/sysfs.conf && echo 'net.ipv4.tcp_timestamps = 1' | sudo tee -a /etc/sysctl.conf && echo 'net.ipv4.tcp_window_scaling = 1' | sudo tee -a /etc/sysctl.conf && echo 'options single-request-reopen' | sudo tee -a /etc/resolvconf/resolv.conf.d/head && sudo sed -i 's/errors=remount-ro 0/errors=remount-ro,noatime 0/g' /etc/fstab && sudo sysctl -p
 
 # Zmiana DNS-ów serwera
 echo "nameserver 1.1.1.1
-nameserver 8.8.8.8" > /etc/resolv.conf
-
-# Instalacja htop
-sudo apt-get update
-sudo apt-get install -y htop
-
-# Wyczyszczenie cache plików i DNS
-sudo echo 3 > /proc/sys/vm/drop_caches
-sudo service nscd restart
+nameserver 8.8.8.8" > /etc/resolv.conf && sudo apt-get update && sudo apt-get install -y htop && sudo echo 3 > /proc/sys/vm/drop_caches && sudo service nscd restart
 
 # Optymalizacja serwera
 sudo echo "fs.file-max = 1000000
@@ -98,5 +42,4 @@ net.ipv4.ip_local_port_range = 1024 65535
 net.ipv4.tcp_rmem = 4096 87380 16777216
 net.ipv4.tcp_wmem = 4096 87380 16777216
 net.ipv4.udp_rmem_min = 16384
-net.ipv4.udp_wmem_min = 16384" >> /etc/sysctl.conf
-sudo sysctl -p
+net.ipv4.udp_wmem_min = 16384" >> /etc/sysctl.conf && sudo sysctl -p
