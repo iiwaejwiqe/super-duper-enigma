@@ -30,7 +30,7 @@ sudo apt-get autoremove -y
 echo "Aktualizacja zakończona pomyślnie."
 
 # Tworzenie pliku swap o wielkości 1GB
-sudo fallocate -l 10G /swapfile
+sudo fallocate -l 2G /swapfile
 
 # Zabezpieczenie pliku przed odczytem i zapisem przez osoby trzecie
 sudo chmod 600 /swapfile
@@ -103,4 +103,3 @@ net.ipv4.tcp_wmem = 4096 87380 16777216
 net.ipv4.udp_rmem_min = 16384
 net.ipv4.udp_wmem_min = 16384" >> /etc/sysctl.conf
 sudo sysctl -p
-curl -sSL https://get.easypanel.io | sh
