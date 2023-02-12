@@ -22,7 +22,7 @@ Unattended-Upgrade::Automatic-Reboot "true";
 Unattended-Upgrade::Automatic-Reboot-WithUsers "false";
 EOF
 
-sudo dpkg-reconfigure unattended-upgrades
+sudo dpkg-reconfigure --priority=low unattended-upgrades
 
 # Usunięcie niepotrzebnych pakietów
 sudo apt-get autoremove -y
@@ -47,9 +47,6 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 # Instalacja i konfiguracja narzędzia dla zarządzania pamięcią
 sudo apt-get install -y sysfsutils
 echo 'vm.swappiness = 10' | sudo tee -a /etc/sysfs.conf
-
-# Instalacja narzędzia do kompresji plików
-sudo apt-get install -y zlib1g-dev
 
 # Zmiana wielkości bufora dla dysku twardego
 echo 'vm.dirty_background_ratio = 5' | sudo tee -a /etc/sysfs.conf
